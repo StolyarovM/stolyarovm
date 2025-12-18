@@ -86,55 +86,173 @@
     </section>
 
     <!-- Галерея (офлайн «соцсеть») -->
-    <section id="page-gallery" class="page">
-      <div class="card">
-        <h2>Галерея результатов (офлайн)</h2>
-        <p class="muted">
-          Импортируй строку экспорта друга или его QR-код для просмотра прогресса локально
-          (на твои данные это не влияет).
-        </p>
-        <div class="row">
-          <textarea id="guestText" placeholder="Вставь строку экспорта друга"></textarea>
-          <button id="btnAddGuest" class="btn primary">Добавить</button>
+   <section id="page-gallery" class="page">
+  <div class="card">
+    <h2>Галерея результатов (офлайн)</h2>
+    <p class="muted">
+      Импортируй строку экспорта друга или его QR-код для просмотра прогресса локально
+      (на твои данные это не влияет).
+    </p>
+    
+    <div class="gallery-import">
+      <div class="import-header">
+        <span class="import-title">Добавить результат друга</span>
+        <span class="import-hint">Импортируй экспортную строку Habify</span>
+      </div>
+      
+      <div class="import-box">
+        <div class="import-textarea-wrapper">
+          <textarea 
+            id="guestText" 
+            class="import-textarea" 
+            placeholder="Вставь сюда строку экспорта (начинается с HABIFY1|...)"
+            rows="3"
+          ></textarea>
+          <div class="textarea-counter">
+            <span id="guestTextCounter">0</span> симв.
+          </div>
+        </div>
+        
+        <div class="import-actions">
+          <button id="btnAddGuest" class="btn btn-primary">
+            <span class="btn-icon">👤</span>
+            Добавить друга
+          </button>
+          <button type="button" class="btn btn-outline" id="btnClearGuest">
+            <span class="btn-icon">🗑️</span>
+            Очистить
+          </button>
         </div>
       </div>
-      <div id="guestList" class="list"></div>
-      <div id="guestEmpty" class="empty muted">Пока пусто.</div>
-    </section>
-  </main>
+      
+      <div class="import-tips">
+        <div class="tip-item">
+          <span class="tip-icon">ℹ️</span>
+          <span class="tip-text">Экспортную строку можно получить в разделе "Настройки" → "Экспорт"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="gallery-section">
+    <div class="section-header">
+      <h3 class="section-title">Сохранённые результаты</h3>
+      <span class="section-count" id="guestCount">0</span>
+    </div>
+    
+    <div id="guestList" class="gallery-grid"></div>
+    <div id="guestEmpty" class="empty-state">
+      <div class="empty-icon">📁</div>
+      <h4 class="empty-title">Галерея пуста</h4>
+      <p class="empty-text">Добавь результат друга, чтобы увидеть его прогресс здесь</p>
+    </div>
+  </div>
+</section>
 
   <!-- Плавающая кнопка -->
   <button id="btnAdd" class="fab" title="Новая привычка">+</button>
 
   <!-- Диалоги -->
   <!-- Привычка -->
-  <dialog id="dlgHabit">
-    <form method="dialog" id="habitForm" class="modal">
-      <h3 id="habitTitle">Новая привычка</h3>
-      <label>Название
-        <input id="fName" type="text" maxlength="64" required placeholder="Пить воду"/>
-      </label>
-      <fieldset>
-        <legend>Частота</legend>
-        <label><input type="radio" name="mode" value="daily" checked> Ежедневно</label>
-        <label><input type="radio" name="mode" value="days"> По дням недели</label>
-      </fieldset>
-      <div id="daysSel" class="days">
-        <label><input type="checkbox" value="1" checked> Пн</label>
-        <label><input type="checkbox" value="2" checked> Вт</label>
-        <label><input type="checkbox" value="3" checked> Ср</label>
-        <label><input type="checkbox" value="4" checked> Чт</label>
-        <label><input type="checkbox" value="5" checked> Пт</label>
-        <label><input type="checkbox" value="6"> Сб</label>
-        <label><input type="checkbox" value="0"> Вс</label>
+<dialog id="dlgHabit">
+  <form method="dialog" id="habitForm" class="modal">
+    <h3 id="habitTitle" class="modal-title">Новая привычка</h3>
+    
+    <div class="form-group">
+      <label for="fName" class="form-label">Название</label>
+      <input 
+        id="fName" 
+        type="text" 
+        class="form-input" 
+        maxlength="64" 
+        required 
+        placeholder="Например: Пить воду"
+      />
+    </div>
+    
+    <div class="form-group">
+      <div class="frequency-toggle">
+        <button type="button" class="frequency-btn active" data-mode="daily">
+          <span class="frequency-icon">📅</span>
+          <span class="frequency-label">Ежедневно</span>
+          <span class="frequency-desc">Каждый день</span>
+        </button>
+        <button type="button" class="frequency-btn" data-mode="days">
+          <span class="frequency-icon">📆</span>
+          <span class="frequency-label">По дням недели</span>
+          <span class="frequency-desc">Выберите дни</span>
+        </button>
+        <input type="hidden" id="fMode" name="mode" value="daily">
       </div>
-      <div class="row end">
-        <button class="btn" id="btnCancelHabit" type="button">Отмена</button>
-        <button class="btn primary" id="btnSaveHabit">Сохранить</button>
+    </div>
+    
+    <div id="daysSel" class="days-container">
+      <div class="days-header">
+        <span class="days-title">Выберите дни недели</span>
+        <button type="button" class="days-select-all" id="selectAllDays">Выбрать все</button>
       </div>
-      <input type="hidden" id="fId"/>
-    </form>
-  </dialog>
+      <div class="days-grid">
+        <label class="day-item">
+          <input type="checkbox" value="1" class="day-checkbox" checked>
+          <span class="day-card">
+            <span class="day-number">Пн</span>
+            <span class="day-name">Понедельник</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="2" class="day-checkbox" checked>
+          <span class="day-card">
+            <span class="day-number">Вт</span>
+            <span class="day-name">Вторник</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="3" class="day-checkbox" checked>
+          <span class="day-card">
+            <span class="day-number">Ср</span>
+            <span class="day-name">Среда</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="4" class="day-checkbox" checked>
+          <span class="day-card">
+            <span class="day-number">Чт</span>
+            <span class="day-name">Четверг</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="5" class="day-checkbox" checked>
+          <span class="day-card">
+            <span class="day-number">Пт</span>
+            <span class="day-name">Пятница</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="6" class="day-checkbox">
+          <span class="day-card">
+            <span class="day-number">Сб</span>
+            <span class="day-name">Суббота</span>
+          </span>
+        </label>
+        <label class="day-item">
+          <input type="checkbox" value="0" class="day-checkbox">
+          <span class="day-card">
+            <span class="day-number">Вс</span>
+            <span class="day-name">Воскресенье</span>
+          </span>
+        </label>
+      </div>
+      <div class="days-summary" id="selectedDaysSummary">Пн, Вт, Ср, Чт, Пт</div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="btnCancelHabit" type="button">Отмена</button>
+      <button class="btn btn-primary" id="btnSaveHabit">Сохранить</button>
+    </div>
+    
+    <input type="hidden" id="fId"/>
+  </form>
+</dialog>
 
   <!-- История -->
   <dialog id="dlgHistory">
@@ -157,51 +275,70 @@
   </dialog>
 
   <!-- Настройки -->
-  <dialog id="dlgSettings">
-    <form class="modal" method="dialog">
+  <<dialog id="dlgSettings">
+  <form class="modal" method="dialog">
+    <div class="modal-header">
       <h3>Настройки</h3>
-      <div class="row">
-        <label>Тема
-          <select id="theme">
-            <option value="auto">Авто</option>
-            <option value="dark">Тёмная</option>
-            <option value="light">Светлая</option>
-          </select>
-        </label>
-        <label>Ивенты (бонус XP)
-          <select id="eventSelect">
-            <option value="thu2">Спорт по четвергам ×2</option>
-            <option value="none">Без бонусов</option>
-          </select>
-        </label>
+      <button type="button" class="modal-close" id="btnCloseSettings" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="form-section">
+      <label class="form-label">
+        <span class="label-text">Тема</span>
+        <select id="theme" class="form-select">
+          <option value="auto">Авто</option>
+          <option value="dark">Тёмная</option>
+          <option value="light">Светлая</option>
+        </select>
+      </label>
+      
+      <label class="form-label">
+        <span class="label-text">Ивенты (бонус XP)</span>
+        <select id="eventSelect" class="form-select">
+          <option value="thu2">Спорт по четвергам ×2</option>
+          <option value="none">Без бонусов</option>
+        </select>
+      </label>
+    </div>
+
+    <details class="settings-group">
+      <summary class="settings-summary">
+        <span class="summary-text">Экспорт / Импорт</span>
+        <span class="summary-icon">▼</span>
+      </summary>
+      <div class="settings-content">
+        <div class="button-group">
+          <div class="button-row">
+            <button id="btnCopyExport" type="button" class="btn btn-secondary">Копировать экспорт</button>
+            <button id="btnDownloadExport" type="button" class="btn btn-secondary">Скачать бэкап</button>
+            <button id="btnShowQR" type="button" class="btn btn-secondary">Показать QR</button>
+          </div>
+          <div class="button-row">
+            <input id="impText" class="form-input" placeholder="Вставь строку экспорта"/>
+            <button id="btnDoImport" type="button" class="btn btn-primary">Импортировать</button>
+          </div>
+          <div class="button-row">
+            <button id="btnImportQRFile" type="button" class="btn btn-secondary">Импорт из QR-файла</button>
+            <button id="btnScanQR" type="button" class="btn btn-secondary">Сканировать QR камерой</button>
+            <input id="qrFile" type="file" accept="image/*" class="hidden"/>
+          </div>
+        </div>
       </div>
+    </details>
 
-      <details class="box">
-        <summary>Экспорт / Импорт</summary>
-        <div class="row wrap">
-          <button id="btnCopyExport" type="button" class="btn">Копировать экспорт</button>
-          <button id="btnDownloadExport" type="button" class="btn">Скачать бэкап</button>
-          <button id="btnShowQR" type="button" class="btn">Показать QR</button>
-        </div>
-
-        <div class="row wrap">
-          <input id="impText" placeholder="Вставь строку экспорта"/>
-          <button id="btnDoImport" type="button" class="btn primary">Импортировать</button>
-        </div>
-
-        <div class="row wrap">
-          <input id="qrFile" type="file" accept="image/*" class="hidden"/>
-          <button id="btnImportQRFile" type="button" class="btn">Импорт из QR-файла</button>
-          <button id="btnScanQR" type="button" class="btn">Сканировать QR камерой</button>
-        </div>
-      </details>
-
-      <div class="row end">
-        <button class="btn danger" id="btnReset" type="button">Сбросить всё</button>
-        <button class="btn primary">Готово</button>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="btnReset" type="button">Сбросить всё</button>
+      <div class="footer-actions">
+        <button type="button" class="btn btn-outline" id="btnCancelSettings">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
       </div>
-    </form>
-  </dialog>
+    </div>
+  </form>
+</dialog>
 
   <!-- Профиль -->
   <dialog id="dlgProfile">

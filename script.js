@@ -163,8 +163,37 @@
 
     byId("btnCancelHabit")?.addEventListener("click", () => byId("dlgHabit").close());
     byId("btnSaveHabit")?.addEventListener("click", saveHabit);
+    
+    // Обработка toggle-кнопок выбора частоты
+    byId("dlgHabit")?.addEventListener("click", e => {
+      const freqBtn = e.target.closest(".frequency-btn");
+      if (freqBtn) {
+        const mode = freqBtn.dataset.mode;
+        document.querySelectorAll(".frequency-btn").forEach(btn => {
+          btn.classList.remove("active");
+        });
+        freqBtn.classList.add("active");
+        byId("fMode").value = mode;
+        
+        const daysSel = byId("daysSel");
+        daysSel.style.display = mode === "days" ? "block" : "none";
+        updateDaysSummary();
+      }
+      
+      if (e.target.id === "selectAllDays") {
+        const allChecked = document.querySelectorAll("#daysSel .day-checkbox:checked").length === 7;
+        document.querySelectorAll("#daysSel .day-checkbox").forEach(cb => {
+          cb.checked = !allChecked;
+          cb.dispatchEvent(new Event("change"));
+        });
+        updateDaysSummary();
+      }
+    });
+
     byId("dlgHabit")?.addEventListener("change", e => {
-      if (e.target.name === "mode") toggleDays();
+      if (e.target.classList.contains("day-checkbox")) {
+        updateDaysSummary();
+      }
     });
 
     byId("btnReset")?.addEventListener("click", () => {
@@ -198,6 +227,13 @@
       if (!s) return;
       importFromString(s, "Импортировано");
     });
+    byId("btnCancelSettings")?.addEventListener("click", () => {
+  byId("dlgSettings").close();
+});
+
+byId("btnCloseSettings")?.addEventListener("click", () => {
+  byId("dlgSettings").close();
+});
 
     // галерея гостей
     byId("btnAddGuest")?.addEventListener("click", () => {
@@ -323,44 +359,70 @@
     const dlg = byId("dlgHabit");
     byId("fId").value = "";
     byId("fName").value = "";
-    dlg.querySelector("input[value='daily']").checked = true;
-    dlg.querySelectorAll("#daysSel input[type='checkbox']").forEach(c => {
-      c.checked = (+c.value >= 1 && +c.value <= 5);
+    
+    // Сброс toggle-кнопок частоты
+    document.querySelectorAll(".frequency-btn").forEach(btn => {
+      btn.classList.remove("active");
     });
-    toggleDays();
+    document.querySelector('.frequency-btn[data-mode="daily"]').classList.add("active");
+    byId("fMode").value = "daily";
+    
+    // Сброс дней недели (рабочие дни по умолчанию)
+    document.querySelectorAll("#daysSel .day-checkbox").forEach(cb => {
+      const dayNum = +cb.value;
+      cb.checked = (dayNum >= 1 && dayNum <= 5); // Пн-Пт
+      cb.dispatchEvent(new Event("change"));
+    });
+    
+    byId("daysSel").style.display = "none";
+    updateDaysSummary();
     byId("habitTitle").textContent = "Новая привычка";
     dlg.showModal();
   }
-  function toggleDays() {
-    byId("daysSel").style.display =
-      byId("dlgHabit").querySelector("input[name='mode']:checked").value === "days" ? "flex" : "none";
+
+  function updateDaysSummary() {
+    const selected = Array.from(document.querySelectorAll("#daysSel .day-checkbox:checked"))
+      .map(cb => {
+        const dayNum = +cb.value;
+        return DOW[dayNum];
+      });
+    const summary = byId("selectedDaysSummary");
+    if (summary) {
+      summary.textContent = selected.length > 0 ? selected.join(", ") : "Дни не выбраны";
+    }
   }
+
   function saveHabit(e) {
     e.preventDefault();
     const id = byId("fId").value || Math.random().toString(36).slice(2, 9);
     const name = byId("fName").value.trim();
     if (!name) return;
-    const mode = byId("dlgHabit").querySelector("input[name='mode']:checked").value;
-    const days = Array.from(document.querySelectorAll("#daysSel input[type='checkbox']:checked")).map(c => +c.value);
+    
+    const mode = byId("fMode").value;
+    const days = mode === "days" 
+      ? Array.from(document.querySelectorAll("#daysSel .day-checkbox:checked")).map(c => +c.value)
+      : [];
+    
     const ex = state.habits.find(h => h.id === id);
     if (ex) {
       ex.name = name;
       ex.mode = mode;
-      ex.days = mode === "days" ? days : [];
+      ex.days = days;
     } else {
       state.habits.push({
         id, name, mode,
-        days: mode === "days" ? days : [],
+        days,
         createdAt: todayKey(),
         history: {},
         streak: 0
       });
     }
+    
     save();
     recalcXP();
     renderAll();
     byId("dlgHabit").close();
-    toast("Сохранено");
+    toast("Привычка сохранена");
   }
 
   function isPlanned(h, dow) {
@@ -516,11 +578,22 @@
     const dlg = byId("dlgHabit");
     byId("fId").value = h.id;
     byId("fName").value = h.name;
-    dlg.querySelector(`input[value='${h.mode}']`).checked = true;
-    dlg.querySelectorAll("#daysSel input[type='checkbox']").forEach(c => {
-      c.checked = h.days.includes(+c.value);
+    
+    // Установка toggle-кнопок частоты
+    document.querySelectorAll(".frequency-btn").forEach(btn => {
+      btn.classList.remove("active");
     });
-    toggleDays();
+    document.querySelector(`.frequency-btn[data-mode="${h.mode}"]`).classList.add("active");
+    byId("fMode").value = h.mode;
+    
+    // Установка дней недели
+    document.querySelectorAll("#daysSel .day-checkbox").forEach(cb => {
+      cb.checked = h.days.includes(+cb.value);
+      cb.dispatchEvent(new Event("change"));
+    });
+    
+    byId("daysSel").style.display = h.mode === "days" ? "block" : "none";
+    updateDaysSummary();
     byId("habitTitle").textContent = "Редактировать привычку";
     dlg.showModal();
   }
