@@ -1099,3 +1099,392 @@ dialog {
 :root.light #dlgSettings .btn:not(.primary):not(.danger):not(.outline) {
   background: rgba(224, 242, 254, 0.9);
 }
+/* ===== СТИЛИ ДЛЯ ГАЛЕРЕИ ===== */
+
+/* Импортная секция */
+.gallery-import {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.import-header {
+  margin-bottom: 1rem;
+}
+
+.import-title {
+  display: block;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+}
+
+.import-hint {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* Поле импорта */
+.import-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.import-textarea-wrapper {
+  position: relative;
+}
+
+.import-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-family: monospace, monospace;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+  transition: all 0.2s ease;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+.import-textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.textarea-counter {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: rgba(15, 23, 42, 0.8);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* Кнопки импорта */
+.import-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
+/* Подсказки импорта */
+.import-tips {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.tip-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.tip-icon {
+  font-size: 1.25rem;
+  opacity: 0.8;
+}
+
+.tip-text {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Секция галереи */
+.gallery-section {
+  margin-top: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.section-count {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand);
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Сетка галереи */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Карточка друга */
+.guest-card {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.guest-card:hover {
+  border-color: var(--brand);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.guest-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.guest-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: rgba(15, 23, 42, 1);
+  flex-shrink: 0;
+}
+
+.guest-info {
+  flex: 1;
+}
+
+.guest-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.guest-date {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Статистика друга */
+.guest-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.875rem;
+  background: rgba(15, 23, 42, 1);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-value {
+  font-weight: 800;
+  font-size: 1.375rem;
+  color: var(--brand);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Действия с карточкой */
+.guest-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.guest-actions .btn {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  min-width: auto;
+  flex: 1;
+}
+
+.guest-actions .btn-danger {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.9), rgba(251, 146, 60, 0.9));
+  color: #111827;
+  border-color: transparent;
+}
+
+.guest-actions .btn-secondary {
+  background: rgba(15, 23, 42, 1);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Пустое состояние */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.5);
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-title {
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.empty-text {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  max-width: 300px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+/* Адаптивность галереи */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.875rem;
+  }
+  
+  .guest-card {
+    padding: 1rem;
+  }
+  
+  .guest-stats {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+  
+  .import-actions {
+    flex-direction: column;
+  }
+  
+  .import-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .section-count {
+    align-self: flex-end;
+  }
+  
+  .guest-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .guest-info {
+    text-align: center;
+  }
+}
+
+/* Обновление светлой темы */
+:root.light .gallery-import {
+  background: rgba(224, 242, 254, 0.7);
+}
+
+:root.light .import-textarea {
+  background: rgba(224, 242, 254, 0.9);
+}
+
+:root.light .guest-card {
+  background: rgba(224, 242, 254, 0.9);
+}
+
+:root.light .guest-stats {
+  background: rgba(224, 242, 254, 1);
+}
+
+:root.light .empty-state {
+  background: rgba(224, 242, 254, 0.5);
+}
+
+:root.light .guest-actions .btn-secondary {
+  background: rgba(224, 242, 254, 1);
+}
+
+:root.light .textarea-counter {
+  background: rgba(224, 242, 254, 0.8);
+}
+
+/* Анимация добавления карточки */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.guest-card {
+  animation: slideIn 0.3s ease forwards;
+}

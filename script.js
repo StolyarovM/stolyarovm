@@ -76,7 +76,7 @@
       f: state.firstRun,
       e: state.event,
       p: state.profile,
-      g: state.guests,
+      g: state.guests.map(g => ({ name: g.name, data: g.data })),
       h: state.habits.map(h => ({
         i: h.id,
         n: h.name,
@@ -99,7 +99,10 @@
     if (typeof prof === "string") prof = { name: prof };
     if (!prof.name) prof.name = "";
     state.profile = prof;
-    state.guests = Array.isArray(obj.g) ? obj.g : [];
+    state.guests = Array.isArray(obj.g) ? obj.g.map(g => ({
+      name: g.name || "Гость",
+      data: g.data
+    })) : [];
     state.habits = (obj.h || []).map(o => ({
       id: o.i,
       name: o.n,
@@ -161,6 +164,7 @@
     byId("btnCancelProfile")?.addEventListener("click", () => byId("dlgProfile").close());
     byId("btnSaveProfile")?.addEventListener("click", saveProfile);
 
+    // Диалог привычек
     byId("btnCancelHabit")?.addEventListener("click", () => byId("dlgHabit").close());
     byId("btnSaveHabit")?.addEventListener("click", saveHabit);
     
@@ -196,6 +200,10 @@
       }
     });
 
+    // Настройки
+    byId("btnCancelSettings")?.addEventListener("click", () => byId("dlgSettings").close());
+    byId("btnCloseSettings")?.addEventListener("click", () => byId("dlgSettings").close());
+
     byId("btnReset")?.addEventListener("click", () => {
       if (!confirm("Удалить все данные?")) return;
       delCookie(COOKIE_NAME);
@@ -227,13 +235,6 @@
       if (!s) return;
       importFromString(s, "Импортировано");
     });
-    byId("btnCancelSettings")?.addEventListener("click", () => {
-  byId("dlgSettings").close();
-});
-
-byId("btnCloseSettings")?.addEventListener("click", () => {
-  byId("dlgSettings").close();
-});
 
     // галерея гостей
     byId("btnAddGuest")?.addEventListener("click", () => {
@@ -247,12 +248,20 @@ byId("btnCloseSettings")?.addEventListener("click", () => {
         save();
         renderGuests();
         byId("guestText").value = "";
+        updateGuestTextCounter();
         toast("Добавлено в галерею");
       } catch (e) {
         console.warn(e);
         alert("Не удалось прочитать экспорт друга");
       }
     });
+
+    byId("btnClearGuest")?.addEventListener("click", () => {
+      byId("guestText").value = "";
+      updateGuestTextCounter();
+    });
+
+    byId("guestText")?.addEventListener("input", updateGuestTextCounter);
 
     byId("btnTips")?.addEventListener("click", () => {
       toast("Создай привычку (+), отмечай −/+, прошлые дни — «История». Всё офлайн.");
@@ -282,6 +291,9 @@ byId("btnCloseSettings")?.addEventListener("click", () => {
       stopQRScan();
       byId("dlgQRScan").close();
     });
+
+    // Инициализация счетчика символов
+    updateGuestTextCounter();
   }
 
   /* ---------- Онбординг ---------- */
@@ -708,31 +720,124 @@ byId("btnCloseSettings")?.addEventListener("click", () => {
   }
 
   /* ---------- Галерея ---------- */
+  function updateGuestTextCounter() {
+    const textarea = byId("guestText");
+    const counter = byId("guestTextCounter");
+    if (textarea && counter) {
+      const length = textarea.value.length;
+      counter.textContent = length;
+      counter.style.color = length > 0 ? "var(--brand)" : "var(--muted)";
+    }
+  }
+
   function renderGuests() {
     const box = byId("guestList");
     const empty = byId("guestEmpty");
+    const count = byId("guestCount");
+    
+    // Обновляем счетчик
+    if (count) {
+      count.textContent = state.guests.length;
+      count.style.display = state.guests.length > 0 ? "block" : "none";
+    }
+    
     box.innerHTML = "";
     if (!state.guests.length) {
-      empty.style.display = "block";
+      empty.style.display = "flex";
       return;
     }
+    
     empty.style.display = "none";
-    state.guests.forEach(g => {
-      const card = el("div", "guest");
+    state.guests.forEach((g, index) => {
+      const card = el("div", "guest-card");
+      
+      // Заголовок
+      const header = el("div", "guest-header");
       const img = document.createElement("img");
-      img.className = "gavatar";
+      img.className = "guest-avatar";
       img.src = avatarUrl(g.name || "Guest");
-      const title = el("div", "name", g.name || "Гость");
-      const meta = el("div", "muted", `Привычек: ${Array.isArray(g.data?.h) ? g.data.h.length : 0}, XP: ${xpFromSnapshot(g.data)}`);
-      const del = button("Удалить", () => {
+      img.alt = g.name || "Гость";
+      
+      const info = el("div", "guest-info");
+      const name = el("div", "guest-name", g.name || "Гость");
+      const date = el("div", "guest-date", formatDate(new Date()));
+      info.append(name, date);
+      header.append(img, info);
+      
+      // Статистика
+      const stats = el("div", "guest-stats");
+      const habitsCount = Array.isArray(g.data?.h) ? g.data.h.length : 0;
+      const xpValue = xpFromSnapshot(g.data);
+      const bestStreak = getBestStreak(g.data);
+      const recordsCount = g.data?.h?.reduce((sum, h) => sum + (Object.keys(h.hi || {}).length || 0), 0) || 0;
+      
+      stats.append(
+        createStatItem(habitsCount, "Привычек"),
+        createStatItem(xpValue, "XP"),
+        createStatItem(bestStreak, "Рекорд"),
+        createStatItem(recordsCount, "Записей")
+      );
+      
+      // Действия
+      const actions = el("div", "guest-actions");
+      const deleteBtn = el("button", "btn btn-danger");
+      deleteBtn.textContent = "Удалить";
+      deleteBtn.onclick = () => {
         state.guests = state.guests.filter(x => x !== g);
         save();
         renderGuests();
-      });
-      card.append(img, title, meta, del);
+        toast("Результат удалён");
+      };
+      
+      const viewBtn = el("button", "btn btn-secondary");
+      viewBtn.textContent = "Просмотр";
+      viewBtn.onclick = () => {
+        alert(`Статистика "${g.name || 'Гость'}":\nПривычек: ${habitsCount}\nXP: ${xpValue}\nРекордный стрик: ${bestStreak}\nВсего записей: ${recordsCount}`);
+      };
+      
+      actions.append(viewBtn, deleteBtn);
+      card.append(header, stats, actions);
       box.append(card);
     });
   }
+
+  function createStatItem(value, label) {
+    const item = el("div", "stat-item");
+    const valueEl = el("div", "stat-value", String(value));
+    const labelEl = el("div", "stat-label", label);
+    item.append(valueEl, labelEl);
+    return item;
+  }
+
+  function getBestStreak(snap) {
+    try {
+      const streaks = (snap?.h || []).map(h => {
+        let max = 0;
+        let current = 0;
+        const dates = Object.keys(h.hi || {}).sort();
+        for (let i = 0; i < dates.length; i++) {
+          const d1 = new Date(dates[i]);
+          const d2 = i > 0 ? new Date(dates[i-1]) : null;
+          if (!d2 || (d1 - d2) <= 86400000) {
+            current++;
+          } else {
+            current = 1;
+          }
+          max = Math.max(max, current);
+        }
+        return max;
+      });
+      return streaks.length > 0 ? Math.max(...streaks) : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function formatDate(date) {
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('ru-RU', options);
+  }
+
   function xpFromSnapshot(snap) {
     try {
       const e = snap?.e || "thu2";
